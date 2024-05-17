@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 1000
+RECORDS = 100
 NUM_PROCESSES = 16
 ITERATIONS = 10
 
@@ -48,6 +48,45 @@ delays = {
     'VERY_SLOW': (0.8, 1.3),
 }
 
+num_servers = {
+    'UI': 20,
+    'PURCHASE_BOOK': 10,
+    'DISCOUNT': 4,
+    'GIFT_WRAP': 1,
+    'BOOK_AVAILABILITY': 8,
+    'EXTERNAL_INVENT': 2,
+    'SECOND_HAND': 2,
+    'BUNDLE_OFFER': 2,
+    'USER_CREDENTIALS': 8,
+    'USER_HISTORY': 5,
+    'CARD_CHECK': 10,
+    'VISA': 5,
+    'A_EXPRESS': 5,
+    'MASTERCARD': 5,
+    'LIMIT_CHECK_VISA': 20,
+    'FRAUD_CHECK_VISA': 5,
+    'LIMIT_CHECK_A_EXPRESS': 20,
+    'FRAUD_CHECK_A_EXPRESS': 5,
+    'LIMIT_CHECK_MC': 20,
+    'FRAUD_CHECK_MC': 5,
+    'CURRENCY_CONVERSION': 3,
+    'SHIPPING_OPTIONS': 2,
+    'INSURANCE': 1,
+    'EXPRESS': 1,
+    'INVENTORY_UPDATE': 20,
+    'SUPPLIER_NOTIF': 3,
+    'ADJUSTMENTS': 2,
+    'REVIEW': 4,
+    'REVIEW_VERIFIC': 2,
+    'REVIEW_ANALYSIS': 4,
+    'AUTO_RESPONSE': 6,
+    'AD': 8,
+    'CUSTOMER_SUPPORT': 10,
+    'HISTORY_ACCESS': 2,
+    'PREMIUM_CUSTOMER': 1,
+    'AI_CHATBOT': 8
+}
+
 # Function to simulate processing delay
 def processing_time(delay_range):
     return random.uniform(*delay_range)
@@ -67,6 +106,23 @@ def random_timestamp():
     return datetime(now.year, now.month, now.day, hours, minutes, seconds, milliseconds * 1000)
 
 
+def server_process(state, server_name, delay_type, num_servers=10):
+    
+    if num_servers != 1:
+        server_number = random.randint(1,num_servers)
+        state['path'].append(f'{server_name}_{server_number}')
+        delay = processing_time(delays[delay_type]) + random.uniform(0.001, 0.0001) * num_servers   # Add a server-specific delay
+    else:
+        state['path'].append(f'{server_name}_1')
+        delay = processing_time(delays[delay_type])
+
+    new_time = state['path_times'][-1] + timedelta(seconds=delay)
+    
+    state['path_times'].append(new_time)
+    state['total_delay'] += delay
+    
+    return state
+
 def simulate_process(i):
     # State tracking for the process
     state = {
@@ -80,23 +136,14 @@ def simulate_process(i):
     
     # Define server functions
     def ui_server(state):
-        state['path'].append('ui_server')
-        delay = processing_time(delays['FAST'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'ui_server', 'FAST', num_servers['UI'])
         purchase_book_server(state)
 
     ###########################################################################################################################
     
     def purchase_book_server(state):
         discount_applied = False
-
-        state['path'].append('purchase_book_server')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'purchase_book_server', 'MEDIUM', num_servers['PURCHASE_BOOK'])
 
         # Optional calls
         if random.random() < probabilities['DISCOUNT']:
@@ -113,11 +160,7 @@ def simulate_process(i):
 
 
     def discount_server(state):
-        state['path'].append('discount_server')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'discount_server', 'MEDIUM',num_servers['DISCOUNT'])
 
         if not state['discount_gift_wrap_loop']:
           if random.random() < probabilities['DISCOUNT_GIFT_WRAP']:
@@ -126,11 +169,7 @@ def simulate_process(i):
 
 
     def gift_wrap_server(state):
-        state['path'].append('gift_wrap_server')
-        delay = processing_time(delays['FAST'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'discount_server', 'FAST', num_servers['GIFT_WRAP'])
 
         if not state['discount_gift_wrap_loop']:
             if random.random() < probabilities['DISCOUNT_GIFT_WRAP']:
@@ -140,11 +179,7 @@ def simulate_process(i):
     ###########################################################################################################################
     
     def book_availability_server(state):
-        state['path'].append('book_availability_server')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'book_availability_server', 'SLOW', num_servers['BOOK_AVAILABILITY'])
 
         # Optional calls
         if random.random() < probabilities['EXTERNAL_INVENT']:
@@ -157,11 +192,7 @@ def simulate_process(i):
 
 
     def external_inventory(state):
-        state['path'].append('external_inventory')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'external_inventory_server', 'MEDIUM', num_servers['EXTERNAL_INVENT'])
 
         # Optional calls
         if random.random() < probabilities['SECOND_HAND']:
@@ -169,28 +200,16 @@ def simulate_process(i):
 
 
     def second_hand_market(state):
-        state['path'].append('second_hand_market')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'second_hand_market_server', 'VERY_SLOW', num_servers['SECOND_HAND'])
 
 
     def bundle_offer(state):
-        state['path'].append('bundle_offer')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'bundle_offer_server', 'MEDIUM', num_servers['BUNDLE_OFFER'])
 
     ###########################################################################################################################
     
     def user_credentials(state):
-        state['path'].append('user_credentials')
-        delay = processing_time(delays['FAST'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'user_credentials_server', 'FAST', num_servers['USER_CREDENTIALS'])
 
         # Optional calls
         if random.random() < probabilities['USER_HISTORY']:
@@ -200,20 +219,12 @@ def simulate_process(i):
 
 
     def user_history(state):
-        state['path'].append('user_history')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'user_history_server', 'MEDIUM', num_servers['USER_HISTORY'])
 
     ###########################################################################################################################
     
     def card_check(state):
-        state['path'].append('card_check')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += processing_time(delays['MEDIUM'])
+        state = server_process(state, 'card_check_server', 'MEDIUM', num_servers['CARD_CHECK'])
 
         if random.random() < probabilities['VISA']:
             visa(state)
@@ -224,11 +235,7 @@ def simulate_process(i):
 
 
     def visa(state):
-        state['path'].append('visa')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'visa_server', 'SLOW', num_servers['VISA'])
 
         # Optional calls
         if random.random() < probabilities['LIMIT_CHECK_VISA']:
@@ -241,27 +248,15 @@ def simulate_process(i):
 
 
     def limit_check_visa(state):
-        state['path'].append('limit_check_visa')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'limit_check_visa_server', 'VERY_SLOW', num_servers['LIMIT_CHECK_VISA'])
 
 
     def fraud_check_visa(state):
-        state['path'].append('fraud_check_visa')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'fraud_check_visa_server', 'SLOW', num_servers['FRAUD_CHECK_VISA'])
 
 
     def american_express(state):
-        state['path'].append('american_express')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'american_express_server', 'MEDIUM', num_servers['A_EXPRESS'])
 
         # Optional calls
         if random.random() < probabilities['LIMIT_CHECK_A_EXPRESS']:
@@ -274,27 +269,15 @@ def simulate_process(i):
 
 
     def limit_check_american_express(state):
-        state['path'].append('limit_check_american_express')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'limit_check_american_express_server', 'VERY_SLOW', num_servers['LIMIT_CHECK_A_EXPRESS'])
 
 
     def fraud_check_american_express(state):
-        state['path'].append('fraud_check_american_express')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'fraud_check_american_express_server', 'MEDIUM', num_servers['LIMIT_CHECK_A_EXPRESS'])
 
 
     def mastercard(state):
-        state['path'].append('mastercard')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'mastercard_server', 'SLOW', num_servers['MASTERCARD'])
 
         # Optional calls
         if random.random() < probabilities['LIMIT_CHECK_MC']:
@@ -307,39 +290,23 @@ def simulate_process(i):
 
 
     def limit_check_mastercard(state):
-        state['path'].append('limit_check_mastercard')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'limit_check_mastercard_server', 'VERY_SLOW', num_servers['LIMIT_CHECK_MC'])
 
 
     def fraud_check_mastercard(state):
-        state['path'].append('fraud_check_mastercard')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'fraud_check_mastercard_server', 'MEDIUM', num_servers['FRAUD_CHECK_MC'])
 
     ###########################################################################################################################
     
     def currency_conversion(state):
-        state['path'].append('currency_conversion')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'currency_conversion_server', 'FAST', num_servers['CURRENCY_CONVERSION'])
 
         shipping_options(state)  # Mandatory call
 
     ###########################################################################################################################
     
     def shipping_options(state):
-        state['path'].append('shipping_options')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'shipping_options_server', 'MEDIUM', num_servers['SHIPPING_OPTIONS'])
 
         # Optional calls
         if random.random() < probabilities['INSURANCE']:
@@ -352,28 +319,16 @@ def simulate_process(i):
 
 
     def shipping_insurance(state):
-        state['path'].append('shipping_insurance')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'shipping_insurance_server', 'MEDIUM', num_servers['INSURANCE'])
 
 
     def express_delivery(state):
-        state['path'].append('express_delivery')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'express_delivery_server', 'MEDIUM', num_servers['EXPRESS'])
 
     ###########################################################################################################################
     
     def inventory_update(state):
-        state['path'].append('inventory_update')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'inventory_update_server', 'VERY_SLOW', num_servers['INVENTORY_UPDATE'])
 
         # Optional calls
         if random.random() < probabilities['SUPPLIER_NOTIF']:
@@ -386,28 +341,16 @@ def simulate_process(i):
 
 
     def supplier_notification(state):
-        state['path'].append('supplier_notification')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'supplier_notification_server', 'SLOW', num_servers['SUPPLIER_NOTIF'])
 
 
     def seasonal_adjustments(state):
-        state['path'].append('seasonal_adjustments')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'seasonal_adjustments_server', 'VERY_SLOW', num_servers['ADJUSTMENTS'])
 
     ###########################################################################################################################
     
     def review(state):
-        state['path'].append('review')
-        delay = processing_time(delays['VERY_SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += processing_time(delays['MEDIUM'])
+        state = server_process(state, 'review_server', 'VERY_SLOW', num_servers['REVIEW'])
 
         # Optional calls
         if random.random() < probabilities['REVIEW_VERIFIC']:
@@ -423,47 +366,27 @@ def simulate_process(i):
 
 
     def review_verification(state):
-        state['path'].append('review_verification')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'review_verification_server', 'SLOW', num_servers['REVIEW_VERIFIC'])
 
 
     def review_analysis(state):
-        state['path'].append('review_analysis')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'review_analysis_server', 'SLOW', num_servers['REVIEW_ANALYSIS'])
 
 
     def automatic_response(state):
-        state['path'].append('automatic_response')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'automatic_response_server', 'MEDIUM', num_servers['AUTO_RESPONSE'])
 
     ###########################################################################################################################
     
     def ad(state):
-        state['path'].append('ad')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'ad_server', 'SLOW', num_servers['AD'])
 
         customer_support(state)  # Mandatory call
 
     ###########################################################################################################################
     
     def customer_support(state):
-        state['path'].append('customer_support')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'customer_support_server', 'SLOW', num_servers['CUSTOMER_SUPPORT'])
 
         # Optional calls
         if random.random() < probabilities['HISTORY_ACCESS']:
@@ -474,19 +397,11 @@ def simulate_process(i):
 
 
     def customer_history_access(state):
-        state['path'].append('customer_history_access')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'customer_history_access_server', 'SLOW', num_servers['HISTORY_ACCESS'])
 
 
     def premium_customer_check(state):
-        state['path'].append('premium_customer_check')
-        delay = processing_time(delays['SLOW'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'premium_customer_check_server', 'SLOW', num_servers['PREMIUM_CUSTOMER'])
 
         # Optional calls
         if random.random() < probabilities['AI_CHATBOT']:
@@ -494,11 +409,7 @@ def simulate_process(i):
 
 
     def ai_chatbot(state):
-        state['path'].append('ai_hatbot')
-        delay = processing_time(delays['MEDIUM'])
-        new_time = state['path_times'][-1] + timedelta(seconds=delay)
-        state['path_times'].append(new_time)
-        state['total_delay'] += delay
+        state = server_process(state, 'ai_chatbot_server', 'MEDIUM', num_servers['AI_CHATBOT'])
         
     ###########################################################################################################################
 
