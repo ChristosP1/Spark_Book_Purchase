@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 100
+RECORDS = 1000
 NUM_PROCESSES = 16
 ITERATIONS = 10
 
@@ -107,25 +107,43 @@ def random_timestamp():
 
 
 def server_process(state, server_name, delay_type, num_servers=10):
-    
-    if num_servers != 1:
-        server_number = random.randint(1,num_servers)
-        state['path'].append(f'{server_name}_{server_number}')
-        delay = processing_time(delays[delay_type]) + random.uniform(0.001, 0.0001) * num_servers   # Add a server-specific delay
-    else:
-        state['path'].append(f'{server_name}_1')
-        delay = processing_time(delays[delay_type])
+    prev_time = state["path_times"][-1]
 
-    new_time = state['path_times'][-1] + timedelta(seconds=delay)
+    if num_servers != 1:
+        delay = processing_time(delays[delay_type]) + random.uniform(0.001, 0.0001) * num_servers   # Add a server-specific delay
+        new_time = prev_time + timedelta(seconds=delay)
+        formatted_prev_time = prev_time.strftime("%H:%M:%S.%f")[:-4]
+        formatted_new_time = new_time.strftime("%H:%M:%S.%f")[:-4]
+        server_number = random.randint(1, num_servers)  
+        new_server = f'{server_name}_{server_number}'
+    else:
+        delay = processing_time(delays[delay_type])
+        new_time = prev_time + timedelta(seconds=delay)
+        formatted_prev_time = prev_time.strftime("%H:%M:%S.%f")[:-4]
+        formatted_new_time = new_time.strftime("%H:%M:%S.%f")[:-4]
+        new_server = f'{server_name}_1'
+        
+    try:
+        prev_server = state['path'][-1].split(", ")[0][1:]
+    except:
+        prev_server = 'user'
+        
+    # Correctly formulating log entries
+    request_log = f"<{prev_server}, {new_server}, {formatted_prev_time}, Request, {state['id']}>"
+    response_log = f"<{new_server}, {prev_server}, {formatted_new_time}, Response, {state['id']}>"
+
+    state['path'].append(request_log)
+    state['path'].append(response_log)
     
     state['path_times'].append(new_time)
     state['total_delay'] += delay
     
     return state
 
-def simulate_process(i):
+def simulate_process(data_id, unique_id):
     # State tracking for the process
     state = {
+        'id': f'{unique_id:010d}',
         'path': [],
         'path_times': [random_timestamp()],
         'total_delay': 0,
@@ -417,9 +435,9 @@ def simulate_process(i):
     # Start the process
     ui_server(state)
 
-    formatted_timestamps = [dt.strftime("%H:%M:%S.%f")[:-4] for dt in state['path_times']]
+    # formatted_timestamps = [dt.strftime("%H:%M:%S.%f")[:-4] for dt in state['path_times']]
 
-    return {'path': state['path'], 'timestamps': formatted_timestamps, 'Total Delay': round(state['total_delay'], 2)}
+    return {'path': state['path'], 'Total Delay': round(state['total_delay'], 2)}
 
 
 # Use a pool of workers to process data in parallel
@@ -430,18 +448,19 @@ if __name__ == '__main__':
     print("Current Working Directory:", os.getcwd())
 
     start = time.time()    
-    start = time.time()
 
     for i in range(ITERATIONS):
         with Pool(NUM_PROCESSES) as pool:
-            results = pool.map(simulate_process, range(RECORDS))
+            tasks = [(data_id, i * RECORDS + j + 1) for j, data_id in enumerate(range(i * RECORDS, (i + 1) * RECORDS))]
+            
+            results = pool.starmap(simulate_process, tasks)
         
         name = f'datasets/dataset_{i+1}.csv'
 
         # Convert results to DataFrame
         data = pd.DataFrame(results)
 
-        # Check if file exists and append if it does, else write a new file
+        # Save the file
         data.to_csv(name, index=False)
 
         print(f"Iteration {i + 1}: Data appended to {name}")
