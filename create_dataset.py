@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 1000
+RECORDS = 100000
 NUM_PROCESSES = 16
 ITERATIONS = 10
 
@@ -42,10 +42,10 @@ probabilities = {
 
 # IN SECONDS
 delays = {
-    'FAST': (0.01, 0.03),
-    'MEDIUM': (0.1, 0.4),
-    'SLOW': (0.4, 0.8),
-    'VERY_SLOW': (0.8, 1.3),
+    'FAST': (1, 3),
+    'MEDIUM': (4, 8),
+    'SLOW': (9, 18),
+    'VERY_SLOW': (19, 30),
 }
 
 num_servers = {
@@ -112,15 +112,15 @@ def server_process(state, server_name, delay_type, num_servers=10):
     if num_servers != 1:
         delay = processing_time(delays[delay_type]) + random.uniform(0.001, 0.0001) * num_servers   # Add a server-specific delay
         new_time = prev_time + timedelta(seconds=delay)
-        formatted_prev_time = prev_time.strftime("%H:%M:%S.%f")[:-4]
-        formatted_new_time = new_time.strftime("%H:%M:%S.%f")[:-4]
+        formatted_prev_time = prev_time.strftime("%H:%M:%S:%f")[:-3]
+        formatted_new_time = new_time.strftime("%H:%M:%S:%f")[:-3]
         server_number = random.randint(1, num_servers)  
         new_server = f'{server_name}_{server_number}'
     else:
         delay = processing_time(delays[delay_type])
         new_time = prev_time + timedelta(seconds=delay)
-        formatted_prev_time = prev_time.strftime("%H:%M:%S.%f")[:-4]
-        formatted_new_time = new_time.strftime("%H:%M:%S.%f")[:-4]
+        formatted_prev_time = prev_time.strftime("%H:%M:%S:%f")[:-3]
+        formatted_new_time = new_time.strftime("%H:%M:%S:%f")[:-3]
         new_server = f'{server_name}_1'
         
     try:
@@ -136,7 +136,7 @@ def server_process(state, server_name, delay_type, num_servers=10):
     state['path'].append(response_log)
     
     state['path_times'].append(new_time)
-    state['total_delay'] += delay
+    # state['total_delay'] += delay
     
     return state
 
@@ -437,8 +437,10 @@ def simulate_process(data_id, unique_id):
 
     # formatted_timestamps = [dt.strftime("%H:%M:%S.%f")[:-4] for dt in state['path_times']]
 
-    return {'path': state['path'], 'Total Delay': round(state['total_delay'], 2)}
+    return state['path']
 
+def parse_datetime(time_str):
+    return pd.to_datetime(time_str, format='%H:%M:%S:%f')
 
 # Use a pool of workers to process data in parallel
 if __name__ == '__main__':
@@ -455,13 +457,23 @@ if __name__ == '__main__':
             
             results = pool.starmap(simulate_process, tasks)
         
+        
         name = f'datasets/dataset_{i+1}.csv'
+        # Keep each call as a separate entry in the dataframe
+        flat_list = [item for sublist in results for item in sublist]
 
         # Convert results to DataFrame
-        data = pd.DataFrame(results)
+        data = pd.DataFrame(flat_list, columns=['Logs'])
+        
+        data['Datetime'] = data['Logs'].apply(lambda x: parse_datetime(x.split(',')[2].strip()))
+        
+        data_sorted = data.sort_values(by='Datetime')
+        
+        data_sorted.drop(columns=["Datetime"], inplace=True)
+
 
         # Save the file
-        data.to_csv(name, index=False)
+        data_sorted.to_csv(name, index=False)
 
         print(f"Iteration {i + 1}: Data appended to {name}")
     
