@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 100000
+RECORDS = 10000
 NUM_PROCESSES = 16
 ITERATIONS = 10
 
@@ -89,38 +89,20 @@ num_servers = {
 
 # Function to simulate processing delay
 def processing_time(delay_range):
-    return random.uniform(*delay_range)
-
-
-def random_timestamp():
-    # Generate a random time component
-    hours = random.randint(0, 23)
-    minutes = random.randint(0, 59)
-    seconds = random.randint(0, 59)
-    milliseconds = random.randint(0, 999)
-
-    # Create a datetime object for today with the random time
-    now = datetime.now()
-
-    # Return the datetime object
-    return datetime(now.year, now.month, now.day, hours, minutes, seconds, milliseconds * 1000)
+    return random.randint(*delay_range)
 
 
 def server_process(state, server_name, delay_type, num_servers=10):
     prev_time = state["path_times"][-1]
 
     if num_servers != 1:
-        delay = processing_time(delays[delay_type]) + random.uniform(0.001, 0.0001) * num_servers   # Add a server-specific delay
-        new_time = prev_time + timedelta(seconds=delay)
-        formatted_prev_time = prev_time.strftime("%H:%M:%S:%f")[:-3]
-        formatted_new_time = new_time.strftime("%H:%M:%S:%f")[:-3]
+        delay = processing_time(delays[delay_type]) + random.randint(1, 4) * num_servers   # Add a server-specific delay
+        new_time = prev_time + delay
         server_number = random.randint(1, num_servers)  
         new_server = f'{server_name}_{server_number}'
     else:
         delay = processing_time(delays[delay_type])
-        new_time = prev_time + timedelta(seconds=delay)
-        formatted_prev_time = prev_time.strftime("%H:%M:%S:%f")[:-3]
-        formatted_new_time = new_time.strftime("%H:%M:%S:%f")[:-3]
+        new_time = prev_time + delay
         new_server = f'{server_name}_1'
         
     try:
@@ -129,8 +111,8 @@ def server_process(state, server_name, delay_type, num_servers=10):
         prev_server = 'user'
         
     # Correctly formulating log entries
-    request_log = f"<{prev_server}, {new_server}, {formatted_prev_time}, Request, {state['id']}>"
-    response_log = f"<{new_server}, {prev_server}, {formatted_new_time}, Response, {state['id']}>"
+    request_log = f"<{prev_server}, {new_server}, {prev_time}, Request, {state['id']}>"
+    response_log = f"<{new_server}, {prev_server}, {new_time}, Response, {state['id']}>"
 
     state['path'].append(request_log)
     state['path'].append(response_log)
@@ -145,7 +127,7 @@ def simulate_process(data_id, unique_id):
     state = {
         'id': f'{unique_id:010d}',
         'path': [],
-        'path_times': [random_timestamp()],
+        'path_times': [random.randint(0, 1000)],
         'total_delay': 0,
         'discount_gift_wrap_loop': False
     }
@@ -439,8 +421,6 @@ def simulate_process(data_id, unique_id):
 
     return state['path']
 
-def parse_datetime(time_str):
-    return pd.to_datetime(time_str, format='%H:%M:%S:%f')
 
 # Use a pool of workers to process data in parallel
 if __name__ == '__main__':
@@ -465,11 +445,11 @@ if __name__ == '__main__':
         # Convert results to DataFrame
         data = pd.DataFrame(flat_list, columns=['Logs'])
         
-        data['Datetime'] = data['Logs'].apply(lambda x: parse_datetime(x.split(',')[2].strip()))
+        data['time'] = data['Logs'].apply(lambda x: int(x.split(',')[2].strip()))
         
-        data_sorted = data.sort_values(by='Datetime')
+        data_sorted = data.sort_values(by='time', ascending=True)
         
-        data_sorted.drop(columns=["Datetime"], inplace=True)
+        data_sorted.drop(columns=["time"], inplace=True)
 
 
         # Save the file
