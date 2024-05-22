@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 10000
+RECORDS = 1000
 NUM_PROCESSES = 16
 ITERATIONS = 10
 
@@ -96,7 +96,7 @@ def server_process(state, server_name, delay_type, num_servers=10):
     prev_time = state["path_times"][-1]
 
     if num_servers != 1:
-        delay = processing_time(delays[delay_type]) + random.randint(1, 4) * num_servers   # Add a server-specific delay
+        delay = processing_time(delays[delay_type]) + random.randint(1, 2) * (num_servers//4)   # Add a minor server-specific delay
         new_time = prev_time + delay
         server_number = random.randint(1, num_servers)  
         new_server = f'{server_name}_{server_number}'
@@ -117,7 +117,7 @@ def server_process(state, server_name, delay_type, num_servers=10):
     state['path'].append(request_log)
     state['path'].append(response_log)
     
-    state['path_times'].append(new_time)
+    state['path_times'].append(new_time + 1)    # +1 because a server can send the new request a 'second' after it replies
     # state['total_delay'] += delay
     
     return state
