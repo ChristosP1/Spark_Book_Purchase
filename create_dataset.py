@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 import os
 import time
 
-RECORDS = 1000
+RECORDS = 10000
 NUM_PROCESSES = 16
-ITERATIONS = 10
+ITERATIONS = 50
 
 
 probabilities = {
@@ -96,37 +96,60 @@ def server_process(state, server_name, delay_type, num_servers=10):
     prev_time = state["path_times"][-1]
 
     if num_servers != 1:
-        delay = processing_time(delays[delay_type]) + random.randint(1, 2) * (num_servers//4)   # Add a minor server-specific delay
+        server_number = random.randint(1, num_servers)
+        delay = processing_time(delays[delay_type]) + random.randint(1, 2) * (server_number//4)   # Add a minor server-specific delay
         new_time = prev_time + delay
-        server_number = random.randint(1, num_servers)  
         new_server = f'{server_name}_{server_number}'
     else:
         delay = processing_time(delays[delay_type])
         new_time = prev_time + delay
         new_server = f'{server_name}_1'
-        
+    
+    state['delays'].append(delay)
+    
     try:
-        prev_server = state['path'][-1].split(", ")[0][1:]
+        prev_server = state['path'][-1].split(", ")[1]
     except:
         prev_server = 'user'
         
     # Correctly formulating log entries
     request_log = f"<{prev_server}, {new_server}, {prev_time}, Request, {state['id']}>"
-    response_log = f"<{new_server}, {prev_server}, {new_time}, Response, {state['id']}>"
 
     state['path'].append(request_log)
-    state['path'].append(response_log)
     
-    state['path_times'].append(new_time + 1)    # +1 because a server can send the new request a 'second' after it replies
+    state['path_times'].append(new_time)    # +1 because a server can send the new request a 'second' after it replies
     # state['total_delay'] += delay
     
     return state
+
+def produce_responses(state):
+    paths_list = []
+    delays_list = []
+    
+    for log, delay in zip(reversed(state['path']), reversed(state['delays'])):
+        log_splitted = log.split(", ")[1]
+        paths_list.append(log_splitted)
+        delays_list.append(delay)
+    
+    for i in range(len(paths_list) - 1):
+        
+        current_server = paths_list[i]
+        next_server = paths_list[i+1]
+        new_time = state['path_times'][-1] + delays_list[i]
+
+        response_log = f"<{current_server}, {next_server}, {new_time}, Response, {state['id']}>"
+        
+        state['path'].append(response_log)
+    
+        state['path_times'].append(new_time)
+        
 
 def simulate_process(data_id, unique_id):
     # State tracking for the process
     state = {
         'id': f'{unique_id:010d}',
         'path': [],
+        'delays': [],
         'path_times': [random.randint(0, 1000)],
         'total_delay': 0,
         'discount_gift_wrap_loop': False
@@ -169,7 +192,7 @@ def simulate_process(data_id, unique_id):
 
 
     def gift_wrap_server(state):
-        state = server_process(state, 'discount_server', 'FAST', num_servers['GIFT_WRAP'])
+        state = server_process(state, 'gift_wrap_server', 'FAST', num_servers['GIFT_WRAP'])
 
         if not state['discount_gift_wrap_loop']:
             if random.random() < probabilities['DISCOUNT_GIFT_WRAP']:
@@ -418,6 +441,7 @@ def simulate_process(data_id, unique_id):
     ui_server(state)
 
     # formatted_timestamps = [dt.strftime("%H:%M:%S.%f")[:-4] for dt in state['path_times']]
+    produce_responses(state)
 
     return state['path']
 
