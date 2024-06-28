@@ -56,7 +56,6 @@ Logs
 "<gift_wrap_server_1, discount_server_1, 1055, Response, 0000000001>"
 "<discount_server_1, purchase_book_server_5, 1061, Response, 0000000001>"
 "<purchase_book_server_5, ui_server_2, 1069, Response, 0000000001>"
-Logs
 "<user, ui_server_17, 835, Request, 0000000001>"
 "<ui_server_17, purchase_book_server_5, 840, Request, 0000000001>"
 "<purchase_book_server_5, discount_server_3, 847, Request, 0000000001>"
@@ -112,7 +111,6 @@ Logs
 "<gift_wrap_server_1, discount_server_3, 1486, Response, 0000000001>"
 "<discount_server_3, purchase_book_server_5, 1491, Response, 0000000001>"
 "<purchase_book_server_5, ui_server_17, 1498, Response, 0000000001>"
-Logs
 "<user, ui_server_12, 560, Request, 0000000001>"
 "<ui_server_12, purchase_book_server_3, 565, Request, 0000000001>"
 "<purchase_book_server_3, discount_server_2, 569, Request, 0000000001>"
@@ -170,7 +168,6 @@ Logs
 "<gift_wrap_server_1, discount_server_2, 1241, Response, 0000000001>"
 "<discount_server_2, purchase_book_server_3, 1249, Response, 0000000001>"
 "<purchase_book_server_3, ui_server_12, 1253, Response, 0000000001>"
-Logs
 "<user, ui_server_7, 945, Request, 0000000001>"
 "<ui_server_7, purchase_book_server_10, 947, Request, 0000000001>"
 "<purchase_book_server_10, discount_server_3, 957, Request, 0000000001>"
@@ -228,7 +225,6 @@ Logs
 "<gift_wrap_server_1, discount_server_3, 1581, Response, 0000000001>"
 "<discount_server_3, purchase_book_server_10, 1585, Response, 0000000001>"
 "<purchase_book_server_10, ui_server_7, 1595, Response, 0000000001>"
-Logs
 "<user, ui_server_2, 864, Request, 0000000001>"
 "<ui_server_2, purchase_book_server_3, 866, Request, 0000000001>"
 "<purchase_book_server_3, discount_server_1, 873, Request, 0000000001>"
@@ -284,7 +280,6 @@ Logs
 "<gift_wrap_server_1, discount_server_1, 1447, Response, 0000000001>"
 "<discount_server_1, purchase_book_server_3, 1451, Response, 0000000001>"
 "<purchase_book_server_3, ui_server_2, 1458, Response, 0000000001>"
-Logs
 "<user, ui_server_8, 120, Request, 0000000001>"
 "<ui_server_8, purchase_book_server_2, 126, Request, 0000000001>"
 "<purchase_book_server_2, book_availability_server_2, 130, Request, 0000000001>"
@@ -310,7 +305,6 @@ Logs
 "<user_credentials_server_3, book_availability_server_2, 433, Response, 0000000001>"
 "<book_availability_server_2, purchase_book_server_2, 446, Response, 0000000001>"
 "<purchase_book_server_2, ui_server_8, 450, Response, 0000000001>"
-Logs
 "<user, ui_server_19, 291, Request, 0000000001>"
 "<ui_server_19, purchase_book_server_1, 301, Request, 0000000001>"
 "<purchase_book_server_1, book_availability_server_4, 305, Request, 0000000001>"
@@ -336,7 +330,6 @@ Logs
 "<user_credentials_server_1, book_availability_server_4, 571, Response, 0000000001>"
 "<book_availability_server_4, purchase_book_server_1, 591, Response, 0000000001>"
 "<purchase_book_server_1, ui_server_19, 595, Response, 0000000001>"
-Logs
 "<user, ui_server_7, 726, Request, 0000000001>"
 "<ui_server_7, purchase_book_server_1, 731, Request, 0000000001>"
 "<purchase_book_server_1, book_availability_server_4, 739, Request, 0000000001>"
@@ -362,7 +355,6 @@ Logs
 "<user_credentials_server_7, book_availability_server_4, 994, Response, 0000000001>"
 "<book_availability_server_4, purchase_book_server_1, 1011, Response, 0000000001>"
 "<purchase_book_server_1, ui_server_7, 1019, Response, 0000000001>"
-Logs
 "<user, ui_server_11, 658, Request, 0000000001>"
 "<ui_server_11, purchase_book_server_7, 662, Request, 0000000001>"
 "<purchase_book_server_7, book_availability_server_6, 670, Request, 0000000001>"
@@ -386,7 +378,6 @@ Logs
 "<user_credentials_server_7, book_availability_server_6, 934, Response, 0000000001>"
 "<book_availability_server_6, purchase_book_server_7, 952, Response, 0000000001>"
 "<purchase_book_server_7, ui_server_11, 960, Response, 0000000001>"
-Logs
 "<user, ui_server_7, 2, Request, 0000000001>"
 "<ui_server_7, purchase_book_server_7, 4, Request, 0000000001>"
 "<purchase_book_server_7, book_availability_server_6, 13, Request, 0000000001>"
@@ -410,7 +401,6 @@ Logs
 "<user_credentials_server_2, book_availability_server_6, 271, Response, 0000000001>"
 "<book_availability_server_6, purchase_book_server_7, 291, Response, 0000000001>"
 "<purchase_book_server_7, ui_server_7, 300, Response, 0000000001>"
-Logs
 "<user, ui_server_14, 881, Request, 0000000001>"
 "<ui_server_14, purchase_book_server_6, 890, Request, 0000000001>"
 "<purchase_book_server_6, discount_server_3, 900, Request, 0000000001>"
@@ -450,7 +440,6 @@ Logs
 "<book_availability_server_7, discount_server_3, 1246, Response, 0000000001>"
 "<discount_server_3, purchase_book_server_6, 1252, Response, 0000000001>"
 "<purchase_book_server_6, ui_server_14, 1262, Response, 0000000001>"
-Logs
 "<user, ui_server_15, 264, Request, 0000000001>"
 "<ui_server_15, purchase_book_server_3, 271, Request, 0000000001>"
 "<purchase_book_server_3, discount_server_1, 275, Request, 0000000001>"
@@ -494,7 +483,6 @@ Logs
 "<book_availability_server_2, discount_server_1, 657, Response, 0000000001>"
 "<discount_server_1, purchase_book_server_3, 665, Response, 0000000001>"
 "<purchase_book_server_3, ui_server_15, 669, Response, 0000000001>"
-Logs
 "<user, ui_server_5, 334, Request, 0000000001>"
 "<ui_server_5, purchase_book_server_5, 337, Request, 0000000001>"
 "<purchase_book_server_5, discount_server_2, 346, Request, 0000000001>"
@@ -536,7 +524,6 @@ Logs
 "<book_availability_server_7, discount_server_2, 732, Response, 0000000001>"
 "<discount_server_2, purchase_book_server_5, 738, Response, 0000000001>"
 "<purchase_book_server_5, ui_server_5, 747, Response, 0000000001>"
-Logs
 "<user, ui_server_15, 615, Request, 0000000001>"
 "<ui_server_15, purchase_book_server_5, 620, Request, 0000000001>"
 "<purchase_book_server_5, discount_server_4, 629, Request, 0000000001>"
@@ -576,7 +563,6 @@ Logs
 "<book_availability_server_7, discount_server_4, 1000, Response, 0000000001>"
 "<discount_server_4, purchase_book_server_5, 1007, Response, 0000000001>"
 "<purchase_book_server_5, ui_server_15, 1016, Response, 0000000001>"
-Logs
 "<user, ui_server_14, 479, Request, 0000000001>"
 "<ui_server_14, purchase_book_server_7, 486, Request, 0000000001>"
 "<purchase_book_server_7, discount_server_3, 493, Request, 0000000001>"
@@ -614,7 +600,6 @@ Logs
 "<book_availability_server_2, discount_server_3, 823, Response, 0000000001>"
 "<discount_server_3, purchase_book_server_7, 827, Response, 0000000001>"
 "<purchase_book_server_7, ui_server_14, 834, Response, 0000000001>"
-Logs
 "<user, ui_server_3, 483, Request, 0000000001>"
 "<ui_server_3, purchase_book_server_2, 485, Request, 0000000001>"
 "<purchase_book_server_2, book_availability_server_1, 489, Request, 0000000001>"
@@ -652,7 +637,6 @@ Logs
 "<user_credentials_server_3, book_availability_server_1, 941, Response, 0000000001>"
 "<book_availability_server_1, purchase_book_server_2, 957, Response, 0000000001>"
 "<purchase_book_server_2, ui_server_3, 961, Response, 0000000001>"
-Logs
 "<user, ui_server_6, 811, Request, 0000000001>"
 "<ui_server_6, purchase_book_server_9, 815, Request, 0000000001>"
 "<purchase_book_server_9, book_availability_server_1, 821, Request, 0000000001>"
@@ -690,7 +674,6 @@ Logs
 "<user_credentials_server_3, book_availability_server_1, 1318, Response, 0000000001>"
 "<book_availability_server_1, purchase_book_server_9, 1329, Response, 0000000001>"
 "<purchase_book_server_9, ui_server_6, 1335, Response, 0000000001>"
-Logs
 "<user, ui_server_10, 880, Request, 0000000001>"
 "<ui_server_10, purchase_book_server_3, 885, Request, 0000000001>"
 "<purchase_book_server_3, book_availability_server_1, 892, Request, 0000000001>"
@@ -728,7 +711,6 @@ Logs
 "<user_credentials_server_8, book_availability_server_1, 1373, Response, 0000000001>"
 "<book_availability_server_1, purchase_book_server_3, 1384, Response, 0000000001>"
 "<purchase_book_server_3, ui_server_10, 1391, Response, 0000000001>"
-Logs
 "<user, ui_server_13, 880, Request, 0000000001>"
 "<ui_server_13, purchase_book_server_8, 887, Request, 0000000001>"
 "<purchase_book_server_8, book_availability_server_7, 894, Request, 0000000001>"
@@ -768,7 +750,6 @@ Logs
 "<bundle_offer_server_2, book_availability_server_7, 1382, Response, 0000000001>"
 "<book_availability_server_7, purchase_book_server_8, 1396, Response, 0000000001>"
 "<purchase_book_server_8, ui_server_13, 1403, Response, 0000000001>"
-Logs
 "<user, ui_server_9, 611, Request, 0000000001>"
 "<ui_server_9, purchase_book_server_7, 616, Request, 0000000001>"
 "<purchase_book_server_7, gift_wrap_server_1, 622, Request, 0000000001>"
